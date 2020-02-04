@@ -1,6 +1,6 @@
 <?php
 
-if(!defined('BOT_CLASS')) throw new Exception ('the file '.__FILE__.'בan\'t run alone');
+if(!defined('BOT_CLASS')) throw new Exception ('the file '.__FILE__.'can\'t run alone');
 
 class Bot{
     private $BotToken;
@@ -142,7 +142,7 @@ class Bot{
             // in TODO
             // you can send to your self the error details
 			if(!$res['ok']){
-                Helpers::error_heandler($res);
+                Helpers::error_handler($res);
             }
         }
     }

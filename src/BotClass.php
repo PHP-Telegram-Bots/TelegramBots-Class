@@ -3,18 +3,18 @@
 if(!defined('BOT_CLASS')) throw new Exception ('the file '.__FILE__.'can\'t run alone');
 
 class Bot{
-    private $BotToken;
-    private $BotId;
-    private $BotName;
-    private $BotUserName;
-    private $DBName;
-    private $Debug;
-    private $beautifi = true;
-    private $update = null;
-    private $webHook = null;
-    private $webPagePreview = true;
-    private $Notification = false;
-    private $ParseMode = null;
+    protected $BotToken;
+    protected $BotId;
+    protected $BotName;
+    protected $BotUserName;
+    protected $DBName;
+    protected $Debug;
+    protected $beautifi = true;
+    protected $update = null;
+    protected $webHook = null;
+    protected $webPagePreview = true;
+    protected $Notification = false;
+    protected $ParseMode = null;
 
     public function Bot($token, $Debug = false){
         $botInfo = json_decode(file_get_contents("https://api.telegram.org/bot".$token."/getMe"), true);
@@ -46,7 +46,7 @@ class Bot{
         else return false;
     }
     
-    private function DB($q){
+    protected function DB($q){
         try{
             $DBConn = new SQLite3($this->DBName , SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE) 
                     or $this->sendMessage(WEBMASTER_TG_ID, 'error conncet to db. username:'.$this->BotUserName);
@@ -124,7 +124,7 @@ class Bot{
         return $this->DBName;
     }
         //SendRequest
-    private function Request($method, $data = array()){
+    protected function Request($method, $data = array()){
         $BaseUrl = "https://api.telegram.org/bot".$this->BotToken."/".$method;
     	
         $ch = curl_init();
@@ -379,15 +379,12 @@ class Bot{
         $data["switch_pm_text"] = $switchPmText;
         $data["switch_pm_parameter"] = $switchPmParameter;
         return $this->Request("answerInlineQuery", $data);
-<<<<<<< HEAD:BotClass.php
     }
-<<<<<<< Updated upstream:BotClass.php
+
+    public function pinChatMessage($id, $messageId, $disable_notification = false){
+        $data["chat_id"] = $id;
+        $data["message_id"] = $messageId;
+        $data["disable_notification"] = $disable_notification;
+        $this->Request("pinChatMessage", $data);
+    }
 }
-=======
-    
-}
->>>>>>> Stashed changes:src/BotClass.php
-=======
-    }    
-}
->>>>>>> v2.0-dev:src/BotClass.php

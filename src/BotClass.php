@@ -1,178 +1,6 @@
 <?php
 
-/***********************************************
- * 
- * PHP-Telegram-BOT class
- * 
- * Owner: Yehuda Eisenberg.
- * 
- * Mail: Yehuda.telegram@gmail.com
- * 
- * Link: https://yehudae.ga
- * 
- * Telegram: @YehudaEisenberg
- * 
- * GitHub: https://github.com/YehudaEi
- *
- * License: MIT - אסור לעשות שימוש ציבורי, חובה להשאיר קרדיט ליוצר
- * 
-************************************************/
-
-
-/***********************************************
- * 
- * define('BOT', array(
- *   "token" => "<BOT_TOKEN>",
- *   "webHookUrl" => "https://telegram.org/Bot.php",
- *   "allowed_updates" => array("message", "edited_message"),
- *   "debug" => false
- * ));
- * require_once("BotClass.php");
- * 
-***********************************************/
-
-header('Content-Type: text/html; charset=utf-8');
-date_default_timezone_set('Asia/Jerusalem');
-if(!defined('DATA_PATH'))
-    define('DATA_PATH', '/var/telegram-bots/BotsDATA/');
-if(!defined('WEBMASTER_TG_ID'))
-    define('WEBMASTER_TG_ID', '560402434');
-
-$update = json_decode(file_get_contents('php://input'), true); 
-if(($update == NULL || !defined('BOT')) && !defined('SEND_MESSAGE')){
-    http_response_code(403);
-    include '403.html';
-    die();
-}
-
-
-if(!BOT['debug'])
-    error_reporting(0);
-
-global $bot;
-$bot = new Bot(BOT['token'], BOT['debug']);
-
-//text
-$message = $update['message']['text']                                ?? null;
-//photo
-$tphoto = $update['message']['photo']                                ?? null;
-if(!empty($tphoto))
-    $phid = $update['message']['photo'][count($tphoto)-1]['file_id'] ?? null;
-//audio
-$auid = $update['message']['audio']['file_id']                       ?? null;
-//document
-$did = $update['message']['document']['file_id']                     ?? null;
-//video
-$vidid = $update['message']['video']['file_id']                      ?? null;
-//voice
-$void = $update['message']['voice']['file_id']                       ?? null;
-//video_note
-$vnid = $update['message']['video_note']['file_id']                  ?? null;
-//contact
-$conid = $update['message']['contact']['phone_number']               ?? null;
-$conf = $update['message']['contact']['first_name']                  ?? null;
-$conl = $update['message']['contact']['last_name']                   ?? null;
-//location
-$locid1 = $update['message']['location']['latitude']                 ?? null;
-$locid2 = $update['message']['location']['longitude']                ?? null;
-//Sticker
-$sti = $update['message']['sticker']['file_id']                      ?? null;
-//Venue
-$venLoc1 = $update['message']['venue']['location']['latitude']       ?? null;
-$venLoc2 = $update['message']['venue']['location']['longitude']      ?? null;
-$venTit = $update['message']['venue']['title']                       ?? null;
-$venAdd = $update['message']['venue']['address']                     ?? null;
-//all media
-$cap = $update['message']['caption']                                 ?? null;
-
-//Inline
-$inlineQ = $update["inline_query"]["query"]                          ?? null;
-$InlineQId = $update["inline_query"]["id"]                           ?? null;
-$InlineMsId = $update["callback_query"]["inline_message_id"]         ?? null;
-
-//Callbeck
-$callId = $update["callback_query"]["id"]                            ?? null;
-$callData = $update["callback_query"]["data"]                        ?? null;
-$callFromId = $update["callback_query"]["from"]["id"]                ?? null;
-$callMessageId = $update["callback_query"]["message"]["message_id"]  ?? null;
-
-//Global parmeters
-$chatId = $update['message']['chat']['id']                           ?? null;
-$fromId = $update['message']['from']['id']                           ?? null;
-$chatType = $update["message"]["chat"]["type"]                       ?? null;
-$messageId = $update['message']['message_id']                        ?? null;
-$rfid = $update['message']['reply_to_message']['forward_from']['id'] ?? null;
-$rtx = $update['message']['reply_to_message']['text']                ?? null;
-$forwrdId = $update['message']['forward_from']['id']                 ?? null;
-$forwrdFN = $update['message']['forward_from']['first_name']         ?? null;
-$forwrdLN = $update['message']['forward_from']['last_name']          ?? null;
-$forwrdUN = $update['message']['forward_from']['username']           ?? null;
-$fName = $update["message"]["from"]["first_name"]                    ?? null;
-$lName = $update["message"]["from"]["last_name"]                     ?? null;
-
-//Channel
-if(isset($update['channel_post'])){
-    //text
-    $message = $update['channel_post']['text']                                ?? null;
-    //photo
-    $tphoto = $update['channel_post']['photo']                                ?? null;
-    if(!empty($tphoto))
-        $phid = $update['channel_post']['photo'][count($tphoto)-1]['file_id'] ?? null;
-    //audio
-    $auid = $update['channel_post']['audio']['file_id']                       ?? null;
-    //document
-    $did = $update['channel_post']['document']['file_id']                     ?? null;
-    //video
-    $vidid = $update['channel_post']['video']['file_id']                      ?? null;
-    //voice
-    $void = $update['channel_post']['voice']['file_id']                       ?? null;
-    //video_note
-    $vnid = $update['channel_post']['video_note']['file_id']                  ?? null;
-    //contact
-    $conid = $update['channel_post']['contact']['phone_number']               ?? null;
-    $conf = $update['channel_post']['contact']['first_name']                  ?? null;
-    $conl = $update['channel_post']['contact']['last_name']                   ?? null;
-    //location
-    $locid1 = $update['channel_post']['location']['latitude']                 ?? null;
-    $locid2 = $update['channel_post']['location']['longitude']                ?? null;
-    //Sticker
-    $sti = $update['channel_post']['sticker']['file_id']                      ?? null;
-    //Venue
-    $venLoc1 = $update['channel_post']['venue']['location']['latitude']       ?? null;
-    $venLoc2 = $update['channel_post']['venue']['location']['longitude']      ?? null;
-    $venTit = $update['channel_post']['venue']['title']                       ?? null;
-    $venAdd = $update['channel_post']['venue']['address']                     ?? null;
-    //all media
-    $cap = $update['channel_post']['caption']                                 ?? null;
-
-    
-    $chatId = $update['channel_post']['chat']['id'];
-    $messageId = $update['channel_post']['message_id'];
-    $chatType = "channel";
-}
-//EditMessage
-if(isset($update['edited_message'])){
-    $isEdited = true;
-    $message = $update['edited_message']['text'] ?? null;
-    $chatId = $update['edited_message']['chat']['id'];
-    $chatType = $update["edited_message"]["chat"]["type"];
-    $messageId = $update['edited_message']['message_id'];
-}
-//CallBeck
-if(isset($update['callback_query'])){
-    $message = $update["callback_query"]["data"];
-    $chatId = $update["callback_query"]["message"]["chat"]["id"];
-    $fromId = $update["callback_query"]["from"]["id"];
-    $messageFromId = $update["callback_query"]["message"]["from"]["id"] ?? null;
-    $messageId = $update["callback_query"]["message"]["message_id"];
-}
-//InlineMode
-if(isset($update['inline_query'])){
-    $fromId = $update["inline_query"]["from"]["id"];
-}
-
-if(isset($chatType) && isset($chatId))
-    $bot->SaveID($chatId, $chatType);
+if(!defined('BOT_CLASS')) throw new Exception ('the file '.__FILE__.'can\'t run alone');
 
 class Bot{
     private $BotToken;
@@ -199,20 +27,8 @@ class Bot{
             $this->BotName = $botInfo['result']['first_name'];
             $this->BotUserName = $botInfo['result']['username'];
             $this->DBName = DATA_PATH.$botInfo['result']['id']." - ".$this->BotUserName.'.sqlite';
-            
-            //$old_db_name = DATA_PATH.$this->BotUserName.'.sqlite';
-            //if(isset($old_db_name)){
-            //    copy($old_db_name, $this->DBName);
-            //    unlink($old_db_name);
-            //}
                 
             //Update WebHook
-<<<<<<< Updated upstream:BotClass.php
-            $res = $this->Request("getwebhookinfo");
-            if($res['result']['url'] != BOT['webHookUrl'])
-                $this->Request("setwebhook", array('url' => BOT['webHookUrl']));
-            return true;
-=======
             if(isset(BOT['webHookUrl'])){
                 $res = $this->Request("getwebhookinfo");
                 if($res['result']['url'] != BOT['webHookUrl'])
@@ -226,7 +42,6 @@ class Bot{
             if(isset(BOT['parseMode'])){
                 $this->SetParseMode(BOT['parseMode']);
             }
->>>>>>> Stashed changes:src/BotClass.php
         }
         else return false;
     }
@@ -308,9 +123,8 @@ class Bot{
     public function GetDBName(){
         return $this->DBName;
     }
-    
-    //SendRequest
-    private function Request($method, $data =[] ==null){
+        //SendRequest
+    private function Request($method, $data = array()){
         $BaseUrl = "https://api.telegram.org/bot".$this->BotToken."/".$method;
     	
         $ch = curl_init();
@@ -326,12 +140,18 @@ class Bot{
         }else{
             curl_close($ch);
             $res = json_decode($res, true);
+
+            // you can send to your self the error details
+			if(!$res['ok'] && $this->Debug){
+                Helpers::error_handler($res, true);
+            }
+
             if($this->Debug)
                 $this->logging($res, "Curl: ".$method, true, true, $data);
             return $res;
         }
     }
-    
+
     //Logging
     public function logging($data, $method = null, $success = false, $array = false, $helpArgs = null){
         $tmp = ($this->beautifi ? JSON_PRETTY_PRINT : null ) | JSON_UNESCAPED_UNICODE;
@@ -351,7 +171,7 @@ class Bot{
     //Methods
     public function sendMessage($id, $text, $replyMarkup = null, $replyMessage = null){
         $data["chat_id"] = $id;
-        $data["text"] = $text;
+        $data["text"] = Helpers::text_adjust($text);
         $data["parse_mode"] = $this->ParseMode;
         $data["disable_web_page_preview"] = $this->webPagePreview;
         $data["disable_notification"] = $this->Notification;
@@ -369,7 +189,7 @@ class Bot{
     public function sendPhoto($id, $photo, $caption = null, $replyMessage = null, $replyMarkup = null){
         $data["chat_id"] = $id;
         $data["photo"] = $photo;
-        $data["caption"] = $caption;
+        $data["caption"] = Helpers::text_adjust($caption);
         $data["parse_mode"] = $this->ParseMode;
         $data["disable_notification"] = $this->Notification;
         $data["reply_to_message_id"] = $replyMessage;
@@ -390,7 +210,7 @@ class Bot{
     public function sendDocument($id, $document, $caption = null, $replyMessage = null, $replyMarkup = null){
         $data["chat_id"] = $id;
         $data["document"] = $document;
-        $data["caption"] = $caption;
+        $data["caption"] = Helpers::text_adjust($caption);
         $data["parse_mode"] = $this->ParseMode;
         $data["disable_notification"] = $this->Notification;
         $data["reply_to_message_id"] = $replyMessage;
@@ -411,7 +231,7 @@ class Bot{
         $data["duration"] = $duration;
         $data["width"] = $width;
         $data["height"] = $height;
-        $data["caption"] = $caption;
+        $data["caption"] = Helpers::text_adjust($caption);
         $data["parse_mode"] = $this->ParseMode;
         $data["disable_notification"] = $this->Notification;
         $data["reply_to_message_id"] = $replyMessage;
@@ -508,7 +328,7 @@ class Bot{
     }
     public function answerCallbackQuery($callback, $text = null, $alert = false){
         $data["callback_query_id"] = $callback;
-        $data["text"] = $text;
+        $data["text"] = Helpers::text_adjust($text);
         $data["show_alert"] = $alert;
         return $this->Request("answerCallbackQuery", $data);
     }
@@ -516,7 +336,7 @@ class Bot{
         $data["chat_id"] = $id;
         $data["message_id"] = $messageId;
         $data["inline_message_id"] = $inlineMessage;
-        $data["text"] = $text;
+        $data["text"] = Helpers::text_adjust($text);
         $data["parse_mode"] = $this->ParseMode;
         $data["disable_web_page_preview"] = $this->webPagePreview;
         $data["reply_markup"] = $replyMarkup;
@@ -526,7 +346,7 @@ class Bot{
         $data["chat_id"] = $id;
         $data["message_id"] = $messageId;
         $data["inline_message_id"] = $inlineMessage;
-        $data["caption"] = $caption;
+        $data["caption"] = Helpers::text_adjust($caption);
         $data["reply_markup"] = $replyMarkup;
         return $this->Request("editMessageCaption", $data);
     }
@@ -559,6 +379,7 @@ class Bot{
         $data["switch_pm_text"] = $switchPmText;
         $data["switch_pm_parameter"] = $switchPmParameter;
         return $this->Request("answerInlineQuery", $data);
+<<<<<<< HEAD:BotClass.php
     }
 <<<<<<< Updated upstream:BotClass.php
 }
@@ -566,3 +387,7 @@ class Bot{
     
 }
 >>>>>>> Stashed changes:src/BotClass.php
+=======
+    }    
+}
+>>>>>>> v2.0-dev:src/BotClass.php

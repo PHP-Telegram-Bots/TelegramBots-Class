@@ -13,8 +13,8 @@ define('BOT', array(
     "webHookUrl" => "https://telegram.org/returnJson_MYBOT.php",
     "allowed_updates" => array ("message", "edited_message", "channel_post", "edited_channel_post", "callback_query", "inline_query", "poll", "chosen_inline_result"),
     "debug" => false
-    ));
-require_once("BotClass.php");
+));
+require_once("src/autoload.php");
 
 $bot->SetUpdate($update);
 $bot->SetParseMode('MarkDown');

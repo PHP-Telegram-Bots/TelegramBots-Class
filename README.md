@@ -11,9 +11,10 @@ use:
 ```php
 define('BOT', array(
     "token" => "<TOKEN>",
-    "webHookUrl" => "https://telegram.org/Bot.php",
-    "allowed_updates" => array ("message", "edited_message"),
-    "debug" => false
+    "webHookUrl" => "https://telegram.org/Bot.php", // optional
+    "allowed_updates" => array ("message", "edited_message"), // optional
+    "debug" => false, // optional
+    "ParseMode" => "Markdown" // optional
     ));
 
 require_once("BotClass.php");

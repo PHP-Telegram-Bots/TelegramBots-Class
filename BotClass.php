@@ -207,10 +207,26 @@ class Bot{
             //}
                 
             //Update WebHook
+<<<<<<< Updated upstream:BotClass.php
             $res = $this->Request("getwebhookinfo");
             if($res['result']['url'] != BOT['webHookUrl'])
                 $this->Request("setwebhook", array('url' => BOT['webHookUrl']));
             return true;
+=======
+            if(isset(BOT['webHookUrl'])){
+                $res = $this->Request("getwebhookinfo");
+                if($res['result']['url'] != BOT['webHookUrl'])
+                    if(isset(BOT['allowed_updates']))
+                        $this->Request("setwebhook", array('url' => BOT['webHookUrl'], "allowed_updates" => BOT['allowed_updates']));
+                    else
+                        $this->Request("setwebhook", array('url' => BOT['webHookUrl']));
+                return true;
+            }
+            // set ParseMode
+            if(isset(BOT['parseMode'])){
+                $this->SetParseMode(BOT['parseMode']);
+            }
+>>>>>>> Stashed changes:src/BotClass.php
         }
         else return false;
     }
@@ -544,4 +560,9 @@ class Bot{
         $data["switch_pm_parameter"] = $switchPmParameter;
         return $this->Request("answerInlineQuery", $data);
     }
+<<<<<<< Updated upstream:BotClass.php
 }
+=======
+    
+}
+>>>>>>> Stashed changes:src/BotClass.php

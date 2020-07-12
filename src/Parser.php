@@ -48,7 +48,7 @@ class Parser{
 
                 $this->currentObj->$subarrK = $newObject; // creat new sub object to update key
 
-                $tmp = $this->currentObj->$subarrK; // put the pointer to previus level in tmp 
+                $tmp = $this->currentObj; // put pointer to previus level in tmp 
 
                 $this->currentObj = $this->currentObj->$subarrK; // set current object to dipper
                 $this->walker($subarrV); // walk over the sub object

@@ -19,14 +19,14 @@ $update = array (
     'message' => array (
       'message_id' => 12345,
       'from' => array (
-        'id' => 123,
+        'id' => 100,
         'is_bot' => false,
         'first_name' => 'Yehuda',
         'last_name' => 'Eisenberg',
         'language_code' => 'en',
       ),
       'chat' => array (
-        'id' => 123,
+        'id' => 101,
         'first_name' => 'Yehuda',
         'last_name' => 'Eisenberg',
         'type' => 'private',
@@ -47,8 +47,8 @@ $bot = new TelegramBot($config);
 
 $bot->setUpdate($update);
 
-var_dump($bot->getUpdate()->update_id);
-var_dump($bot->getUpdate()->message);
+// var_dump($bot->getUpdate()->update_id);
+var_dump($bot->getUpdate());
 
 // $bot->sendMessage($user, $text);
 

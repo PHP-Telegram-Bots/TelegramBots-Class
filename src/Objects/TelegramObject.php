@@ -18,12 +18,18 @@ use YehudaEi\TelegramBots\Exception\TelegramException;
 class TelegramObject{
     protected $fields = [];
 
+    // public function __construct(... $values){
+    //     foreach(array_combine(array_keys($this->fields), $values) as $field => $arg){
+    //         $this->field = $arg;
+    //     }
+    // }
+
     public function __get($fieldName){
         if(isset($this->fields[$fieldName])){
             return $this->fields[$fieldName];
         }
         else{
-            throw new TelegramException("Field '$fieldName' not defined in class " . __CLASS__);
+            throw new TelegramException("Field '$fieldName' not defined in class " . get_class($this));
         }
     }
 
@@ -32,7 +38,8 @@ class TelegramObject{
             $this->fields[$fieldName] = $value;
         }
         else{
-            throw new TelegramException("Field '$fieldName' not defined in class " . __CLASS__);
+            var_dump($this);
+            throw new TelegramException("Field '$fieldName' not defined in class " . get_class($this));
         }
     }
 

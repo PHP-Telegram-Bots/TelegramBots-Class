@@ -1,10 +1,17 @@
 <?php
 
-if(!defined('BOT_CLASS')) throw new Exception ('the file '.__FILE__.'can\'t run alone');
+if(!defined('BOT_CLASS')) throw new Exception ('the file '.__FILE__.' can\'t run alone');
 
-$updateType = array_keys($update)[1];
+// the update type is the key that comes with update_id (message, callback_query, ...)
+$updateType = null;
+foreach(array_keys(is_array($update) ? $update : array()) as $key){
+    if($key != 'update_id'){
+        $updateType = $key;
+        break;
+    }
+}
 
-if(isset(BOT['allowed_updates']))
+if(isset(BOT['allowed_updates']) && $updateType !== null)
     if(!in_array($updateType, BOT['allowed_updates']))
         throw new Exception ('invalid update');
 
@@ -17,8 +24,11 @@ if($updateType == 'callback_query'){
     $callData = $update["callback_query"]["data"];
 
     // update the update to $update[updateType]{update body}
-    $update['callback_query'] = $update['callback_query']['message'];
+    $update['callback_query'] = $update['callback_query']['message'] ?? array();
 }else{
+    $callFromId = null;
+    $callId = null;
+    $callData = null;
     $data = null;
 }
 
@@ -54,9 +64,8 @@ $rtmt = $update[$updateType]['reply_to_message']['text']                    ?? n
 //Inline
 $inlineQ = $update["inline_query"]["query"]                                 ?? null;
 $InlineQId = $update["inline_query"]["id"]                                  ?? null;
-$fromId = $update["inline_query"]["from"]["id"]						        ?? null;
 
-$ent = $update[$updateType]['entities']                                     ?? null;
+$ent = $update[$updateType]['entities'] ?? $update[$updateType]['caption_entities'] ?? null;
 
 $buttons = $update[$updateType]["reply_markup"]["inline_keyboard"]          ?? null;
 
@@ -78,6 +87,7 @@ foreach($fileTypes as $type){
 
 //photo
 $tphoto = $update[$updateType]['photo']                                ?? null;
+$phid = null;
 if(!empty($tphoto))
     $phid = $update[$updateType]['photo'][count($tphoto)-1]['file_id'] ?? null;
 //audio
@@ -112,21 +122,25 @@ $venAdd = $update[$updateType]['venue']['address']                     ?? null;
 
 
 // if thete ent in text its revers it to markdown and add `/```/*/_ to text
+// the entities offset and length are in UTF-16 code units, so the text is handled as UTF-16
 $realtext = null;
-if($ent != null){
-    $i = 0;
-    $realtext = $message;
+if($ent != null && $message !== null){
+    $marks = array("code" => "`", "pre" => "```", "bold" => "*", "italic" => "_");
+    $inserts = array();
     foreach($ent as $e){
-        if($e['type'] == "code")
-            $replacment = "`";
-        if($e['type'] == "pre")
-            $replacment = "```";
-        if($e['type'] == "bold")
-            $replacment = "*";
-        if($e['type'] == "italic")
-            $replacment = "_";
-        
-        $realtext = Helpers::entToRealTxt($realtext, $replacment, $e['offset'], $e['length'], $i);
-        $i += strlen($replacment)*2;
+        if(!isset($marks[$e['type']]))
+            continue;
+        $inserts[] = array($e['offset'], count($inserts), $marks[$e['type']]);
+        $inserts[] = array($e['offset'] + $e['length'], count($inserts), $marks[$e['type']]);
     }
+    // insert from the end, so the offsets of the rest stay valid
+    usort($inserts, function($a, $b){
+        return $b[0] == $a[0] ? $b[1] - $a[1] : $b[0] - $a[0];
+    });
+
+    $utf16 = mb_convert_encoding($message, 'UTF-16LE', 'UTF-8');
+    foreach($inserts as $insert){
+        $utf16 = substr_replace($utf16, mb_convert_encoding($insert[2], 'UTF-16LE', 'UTF-8'), $insert[0] * 2, 0);
+    }
+    $realtext = mb_convert_encoding($utf16, 'UTF-8', 'UTF-16LE');
 }

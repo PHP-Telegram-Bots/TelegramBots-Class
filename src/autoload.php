@@ -18,7 +18,7 @@ foreach($files as $file){
         throw new Exception ($file.' not found');
 }
 
-if(BOT['debug']){
+if(!empty(BOT['debug'])){
     // uncomment this function to get the php errors in telegram
     set_exception_handler(array('Helpers', 'error_handler'));
     set_error_handler(array('Helpers', 'error_handler_php'));
@@ -39,7 +39,7 @@ if(BOT['debug']){
 }
 
 
-$bot = new Bot(BOT['token'], BOT['debug']);
+$bot = new Bot(BOT['token'], !empty(BOT['debug']));
 Helpers::SetBot($bot);
 
 if(isset($chatType) && isset($chatId))

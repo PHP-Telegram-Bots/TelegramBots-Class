@@ -5,7 +5,7 @@ if(!defined('BOT_CLASS')) throw new Exception ('the file '.__FILE__.' can\'t run
 class Helpers{
     private static $Bot;
 
-    public function Helpers($Bot = null){
+    public function __construct($Bot = null){
         if($Bot != null)
             self::$Bot = $Bot;
         else{
@@ -32,15 +32,13 @@ class Helpers{
     	curl_setopt($ch ,CURLOPT_POSTFIELDS, $data);
        
         $res = curl_exec($ch);
-        if(curl_error($ch)){
+        $error = curl_error($ch);
+        if($error){
             if(gettype(self::$Bot) == "object" && self::$Bot->GetDebug())
-                self::$Bot->logging(curl_error($ch), "Curl: ".$url, false, false, $data);
-            curl_close($ch);
+                self::$Bot->logging($error, "Curl: ".$url, false, false, $data);
 
             return false;
         }else{
-            curl_close($ch);
-
             if(gettype(self::$Bot) == "object" && self::$Bot->GetDebug())
                 self::$Bot->logging($res, "Curl: ".$url, true, false, $data);
             return $res;
@@ -81,10 +79,9 @@ class Helpers{
         if(gettype($text) != "string")
         	$text = var_export($text, true);
 
-        if(mb_strlen($text) > 4090){
-            $delDog = self::postRequest("https://del.dog/documents", $text);
-            $delDogKey = json_decode($delDog, true)["key"];
-            $text = "message is too long. https://del.dog/".$delDogKey;
+        // telegram's limit is 4096 characters
+        if(mb_strlen($text) > 4096){
+            $text = mb_substr($text, 0, 4093)."...";
         }
         elseif($text == '')
             $text = "message empty";
@@ -133,14 +130,15 @@ class Helpers{
                 if($key == 0) continue;
                 else if($value['function'] == "error_handler"){
                     self::$Bot->sendMessage(WEBMASTER_TG_ID, "loop error");
-                    self::$Bot->sendMessage(WEBMASTER_TG_ID, $errorData['description']);
+                    self::$Bot->sendMessage(WEBMASTER_TG_ID, $errorData['description'] ?? $errorData);
                     die();
                 }
             }
 
-            $res["calledByFunc"] = debug_backtrace()[2]['function'];
-            $res["fileLocation"] = debug_backtrace()[2]['file'];
-            $res["lineInFile"] = debug_backtrace()[2]['line'];
+            $trace = debug_backtrace();
+            $res["calledByFunc"] = $trace[2]['function'] ?? null;
+            $res["fileLocation"] = $trace[2]['file'] ?? null;
+            $res["lineInFile"] = $trace[2]['line'] ?? null;
             $res["errorType"] = "Telegram api output error";
 
             $res['telegramRespons'] = $errorData;
@@ -162,7 +160,7 @@ class Helpers{
             self::$Bot->sendMessage(WEBMASTER_TG_ID, $r);
         }
     }
-    public static function error_handler_php($ErrorId, $ErrorMes, $ErrorFile, $ErrorLine, $ErrorFatherFiles){
+    public static function error_handler_php($ErrorId, $ErrorMes, $ErrorFile, $ErrorLine, $ErrorFatherFiles = null){
         // Original - https://gist.github.com/YehudaEi/c0ae248fae39020ab4aabc1047984902
         
         if(gettype(self::$Bot) != "object"){

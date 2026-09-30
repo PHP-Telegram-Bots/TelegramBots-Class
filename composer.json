@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Telegram-api-bots class",
     "keywords": ["telegram","bots","telegram-api","api"],
-    "homepage": "https://github.com/YehudaEi/TelegramBots-Class",
+    "homepage": "https://github.com/PHP-Telegram-Bots/TelegramBots-Class",
     "license": "MIT",
     "authors": [
         {
@@ -14,7 +14,11 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=7.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-sqlite3": "*"
     },
     "autoload": {
         "psr-4": {
